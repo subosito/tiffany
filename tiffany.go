@@ -14,7 +14,9 @@ var vanityTmpl = template.Must(template.New("vanity").Parse(`
 	<meta charset="utf-8">
 	<title>{{.CanonicalURL}}</title>
 	<meta name="go-import" content="{{.CanonicalURL}} {{.VCS}} {{.RepoURL}}">
+	{{if .SourceURL -}}
 	<meta name="go-source" content="{{.CanonicalURL}} {{.RepoURL}} {{.SourceURL}}">
+	{{- end}}
 	<meta http-equiv="refresh" content="0; url={{.GodocURL}}/{{.CanonicalURL}}">
 </head>
 <body>
@@ -38,11 +40,12 @@ type Option struct {
 }
 
 func (opt Option) vcs() string {
-	if strings.HasPrefix(opt.RepoURL, githubURL) {
+	switch {
+	case strings.HasPrefix(opt.RepoURL, githubURL), strings.HasPrefix(opt.RepoURL, bitbucketURL):
 		return "git"
+	default:
+		return opt.VCS
 	}
-
-	return opt.VCS
 }
 
 func (opt Option) sourceURL() string {
@@ -51,9 +54,9 @@ func (opt Option) sourceURL() string {
 		return fmt.Sprintf("%v/tree/master{/dir} %v/blob/master{/dir}/{file}#L{line}", opt.RepoURL, opt.RepoURL)
 	case strings.HasPrefix(opt.RepoURL, bitbucketURL):
 		return fmt.Sprintf("%v/src/default{/dir} %v/src/default{/dir}/{file}#{file}-{line}", opt.RepoURL, opt.RepoURL)
+	default:
+		return ""
 	}
-
-	return ""
 }
 
 func (opt Option) godocURL() string {
