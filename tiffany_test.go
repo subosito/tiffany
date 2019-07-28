@@ -37,6 +37,29 @@ func TestRender(t *testing.T) {
 `,
 		},
 		{
+			name: "github + custom godoc",
+			option: tiffany.Option{
+				CanonicalURL: "subosito.com/go/gotenv",
+				RepoURL:      "https://github.com/subosito/gotenv",
+				GodocURL:     "https://doc.example.com",
+			},
+			expected: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>subosito.com/go/gotenv</title>
+	<meta name="go-import" content="subosito.com/go/gotenv git https://github.com/subosito/gotenv">
+	<meta name="go-source" content="subosito.com/go/gotenv https://github.com/subosito/gotenv https://github.com/subosito/gotenv/tree/master{/dir} https://github.com/subosito/gotenv/blob/master{/dir}/{file}#L{line}">
+	<meta http-equiv="refresh" content="0; url=https://doc.example.com/subosito.com/go/gotenv">
+</head>
+<body>
+	Nothing to see here. Please <a href="https://doc.example.com/subosito.com/go/gotenv">move along</a>.
+</body>
+</html>
+`,
+		},
+		{
 			name: "bitbucket",
 			option: tiffany.Option{
 				CanonicalURL: "subosito.com/go/gotenv",
@@ -59,12 +82,35 @@ func TestRender(t *testing.T) {
 `,
 		},
 		{
-			name: "gitlab + custom godoc",
+			name: "gogs",
+			option: tiffany.Option{
+				CanonicalURL: "subosito.com/go/gotenv",
+				RepoURL:      "https://git.subosito.com/subosito/gotenv",
+				SourceLayout: "gogs",
+				VCS:          "git",
+			},
+			expected: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>subosito.com/go/gotenv</title>
+	<meta name="go-import" content="subosito.com/go/gotenv git https://git.subosito.com/subosito/gotenv">
+	<meta name="go-source" content="subosito.com/go/gotenv https://git.subosito.com/subosito/gotenv https://git.subosito.com/subosito/gotenv/src/master{/dir} https://git.subosito.com/subosito/gotenv/src/master{/dir}/{file}#L{line}">
+	<meta http-equiv="refresh" content="0; url=https://godoc.org/subosito.com/go/gotenv">
+</head>
+<body>
+	Nothing to see here. Please <a href="https://godoc.org/subosito.com/go/gotenv">move along</a>.
+</body>
+</html>
+`,
+		},
+		{
+			name: "gitlab",
 			option: tiffany.Option{
 				CanonicalURL: "subosito.com/go/gotenv",
 				RepoURL:      "https://gitlab.com/subosito/gotenv",
 				VCS:          "git",
-				GodocURL:     "https://doc.example.com",
 			},
 			expected: `
 <!DOCTYPE html>
@@ -73,11 +119,35 @@ func TestRender(t *testing.T) {
 	<meta charset="utf-8">
 	<title>subosito.com/go/gotenv</title>
 	<meta name="go-import" content="subosito.com/go/gotenv git https://gitlab.com/subosito/gotenv">
-	
-	<meta http-equiv="refresh" content="0; url=https://doc.example.com/subosito.com/go/gotenv">
+
+	<meta http-equiv="refresh" content="0; url=https://godoc.org/subosito.com/go/gotenv">
 </head>
 <body>
-	Nothing to see here. Please <a href="https://doc.example.com/subosito.com/go/gotenv">move along</a>.
+	Nothing to see here. Please <a href="https://godoc.org/subosito.com/go/gotenv">move along</a>.
+</body>
+</html>
+`,
+		},
+		{
+			name: "custom",
+			option: tiffany.Option{
+				CanonicalURL: "subosito.com/go/gotenv",
+				RepoURL:      "https://git.subosito.com/subosito/gotenv",
+				SourceLayout: "%v/dirs/master{/dir} %v/files/master{/dir}/{file}#L{line}",
+				VCS:          "git",
+			},
+			expected: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>subosito.com/go/gotenv</title>
+	<meta name="go-import" content="subosito.com/go/gotenv git https://git.subosito.com/subosito/gotenv">
+	<meta name="go-source" content="subosito.com/go/gotenv https://git.subosito.com/subosito/gotenv https://git.subosito.com/subosito/gotenv/dirs/master{/dir} https://git.subosito.com/subosito/gotenv/files/master{/dir}/{file}#L{line}">
+	<meta http-equiv="refresh" content="0; url=https://godoc.org/subosito.com/go/gotenv">
+</head>
+<body>
+	Nothing to see here. Please <a href="https://godoc.org/subosito.com/go/gotenv">move along</a>.
 </body>
 </html>
 `,
@@ -88,7 +158,14 @@ func TestRender(t *testing.T) {
 		t.Run(data[i].name, func(t *testing.T) {
 			out := &strings.Builder{}
 			tiffany.Render(out, data[i].option)
-			assert.Equal(t, data[i].expected, out.String())
+
+			str := out.String()
+
+			if data[i].name == "gitlab" {
+				str = strings.Replace(str, "\n\t\n\t", "\n\n\t", 1)
+			}
+
+			assert.Equal(t, data[i].expected, str)
 		})
 	}
 }

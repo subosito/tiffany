@@ -36,6 +36,7 @@ type Option struct {
 	CanonicalURL string
 	RepoURL      string
 	VCS          string
+	SourceLayout string
 	SourceURL    string
 	GodocURL     string
 }
@@ -51,14 +52,35 @@ func (opt Option) vcs() string {
 	}
 }
 
-func (opt Option) sourceURL() string {
+func (opt Option) sourceLayout() string {
+	if opt.SourceLayout != "" {
+		return opt.SourceLayout
+	}
+
 	switch {
 	case strings.HasPrefix(opt.RepoURL, githubURL):
-		return fmt.Sprintf("%v/tree/master{/dir} %v/blob/master{/dir}/{file}#L{line}", opt.RepoURL, opt.RepoURL)
+		return "github"
 	case strings.HasPrefix(opt.RepoURL, bitbucketURL):
-		return fmt.Sprintf("%v/src/default{/dir} %v/src/default{/dir}/{file}#{file}-{line}", opt.RepoURL, opt.RepoURL)
+		return "bitbucket"
 	default:
 		return ""
+	}
+}
+
+func (opt Option) sourceURL() string {
+	layout := opt.sourceLayout()
+
+	switch layout {
+	case "":
+		return ""
+	case "github":
+		return fmt.Sprintf("%v/tree/master{/dir} %v/blob/master{/dir}/{file}#L{line}", opt.RepoURL, opt.RepoURL)
+	case "bitbucket":
+		return fmt.Sprintf("%v/src/default{/dir} %v/src/default{/dir}/{file}#{file}-{line}", opt.RepoURL, opt.RepoURL)
+	case "gogs":
+		return fmt.Sprintf("%v/src/master{/dir} %v/src/master{/dir}/{file}#L{line}", opt.RepoURL, opt.RepoURL)
+	default:
+		return fmt.Sprintf(layout, opt.RepoURL, opt.RepoURL)
 	}
 }
 
