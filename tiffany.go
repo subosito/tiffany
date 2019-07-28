@@ -1,4 +1,4 @@
-package tiffany
+package tiffany // import "subosito.com/go/tiffany"
 
 import (
 	"fmt"
