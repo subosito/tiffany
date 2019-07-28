@@ -31,6 +31,7 @@ const (
 	bitbucketURL = "https://bitbucket.org"
 )
 
+// Option is configuration for vanity URL
 type Option struct {
 	CanonicalURL string
 	RepoURL      string
@@ -69,6 +70,7 @@ func (opt Option) godocURL() string {
 	return opt.GodocURL
 }
 
+// Render renders the vanity URL information based on supplied option.
 func Render(w io.Writer, option Option) error {
 	return vanityTmpl.Execute(w, Option{
 		CanonicalURL: option.CanonicalURL,
