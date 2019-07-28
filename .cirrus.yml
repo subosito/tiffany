@@ -1,0 +1,5 @@
+container:
+  image: golang:1.12-stretch
+
+test_task:
+  test_script: go test -v
