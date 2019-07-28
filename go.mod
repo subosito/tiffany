@@ -1,4 +1,4 @@
-module github.com/subosito/tiffany
+module subosito.com/go/tiffany
 
 go 1.12
 

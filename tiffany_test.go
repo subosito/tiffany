@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/subosito/tiffany"
+	"subosito.com/go/tiffany"
 )
 
 func TestRender(t *testing.T) {
