@@ -41,7 +41,9 @@ type Option struct {
 
 func (opt Option) vcs() string {
 	switch {
-	case strings.HasPrefix(opt.RepoURL, githubURL), strings.HasPrefix(opt.RepoURL, bitbucketURL):
+	case strings.HasPrefix(opt.RepoURL, githubURL):
+		return "git"
+	case strings.HasPrefix(opt.RepoURL, bitbucketURL) && opt.VCS == "":
 		return "git"
 	default:
 		return opt.VCS
