@@ -1,6 +1,6 @@
 # tiffany
 
-[![Build Status](https://github.com/subosito/tiffany/build/badge.svg)](https://github.com/subosito/tiffany/actions)
+[![Build Status](https://github.com/subosito/tiffany/workflows/build/badge.svg)](https://github.com/subosito/tiffany/actions)
 [![Coverage Status](https://badgen.net/codecov/c/github/subosito/tiffany)](https://codecov.io/gh/subosito/tiffany)
 [![GoDoc](https://godoc.org/github.com/subosito/tiffany?status.svg)](https://godoc.org/subosito.com/go/tiffany)
 
