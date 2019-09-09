@@ -1,0 +1,15 @@
+name: build
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v1
+        with:
+          go-version: 1.12
+      - uses: actions/checkout@v1
+      - run: go get -t -v
+      - run: go test -test.v -coverprofile=coverage.out -covermode=count
+      - run: bash <(curl -s https://codecov.io/bash)
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
