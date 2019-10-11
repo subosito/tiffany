@@ -129,6 +129,30 @@ func TestRender(t *testing.T) {
 `,
 		},
 		{
+			name: "gitlab + without godoc",
+			option: tiffany.Option{
+				CanonicalURL:  "subosito.com/go/gotenv",
+				RepoURL:       "https://gitlab.com/subosito/gotenv",
+				GodocDisabled: true,
+				VCS:           "git",
+			},
+			expected: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>subosito.com/go/gotenv</title>
+	<meta name="go-import" content="subosito.com/go/gotenv git https://gitlab.com/subosito/gotenv">
+
+	<meta http-equiv="refresh" content="0; url=https://gitlab.com/subosito/gotenv">
+</head>
+<body>
+	Nothing to see here. Please <a href="https://gitlab.com/subosito/gotenv">move along</a>.
+</body>
+</html>
+`,
+		},
+		{
 			name: "custom",
 			option: tiffany.Option{
 				CanonicalURL: "subosito.com/go/gotenv",
