@@ -1,8 +1,0 @@
-container:
-  image: golang:1.12-stretch
-
-test_task:
-  environment:
-    CODECOV_TOKEN: ENCRYPTED[f59c2f9ade72b838a564ca3771ed723652a29c66534feb03b27885fff07b0a713ca00b85b3dc6c329db32487dbfd30d9]
-  test_script: go test -v -coverprofile=coverage.out
-  coverage_script: bash <(curl -s https://codecov.io/bash)
