@@ -13,6 +13,7 @@ func TestRender(t *testing.T) {
 		name     string
 		option   tiffany.Option
 		expected string
+		error    string
 	}{
 		{
 			name: "github",
@@ -153,6 +154,30 @@ func TestRender(t *testing.T) {
 `,
 		},
 		{
+			name: "gitlab ssh + without godoc",
+			option: tiffany.Option{
+				CanonicalURL:  "subosito.com/go/gotenv",
+				RepoURL:       "ssh://git@gitlab.com/subosito/gotenv",
+				GodocDisabled: true,
+				VCS:           "git",
+			},
+			expected: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>subosito.com/go/gotenv</title>
+	<meta name="go-import" content="subosito.com/go/gotenv git https://gitlab.com/subosito/gotenv">
+
+	<meta http-equiv="refresh" content="0; url=https://gitlab.com/subosito/gotenv">
+</head>
+<body>
+	Nothing to see here. Please <a href="https://gitlab.com/subosito/gotenv">move along</a>.
+</body>
+</html>
+`,
+		},
+		{
 			name: "custom",
 			option: tiffany.Option{
 				CanonicalURL: "subosito.com/go/gotenv",
@@ -176,20 +201,28 @@ func TestRender(t *testing.T) {
 </html>
 `,
 		},
+		{
+			name: "error",
+			option: tiffany.Option{
+				CanonicalURL: "subosito.com/go/gotenv",
+				RepoURL:      "https://.|_|.com/subosito/gotenv",
+				VCS:          "git",
+			},
+			expected: "",
+			error:    `parse https://.|_|.com/subosito/gotenv: invalid character "|" in host name`,
+		},
 	}
 
-	for i := range data {
-		t.Run(data[i].name, func(t *testing.T) {
+	for _, val := range data {
+		t.Run(val.name, func(t *testing.T) {
 			out := &strings.Builder{}
-			tiffany.Render(out, data[i].option)
+			err := tiffany.Render(out, val.option)
 
-			str := out.String()
-
-			if data[i].name == "gitlab" {
-				str = strings.Replace(str, "\n\t\n\t", "\n\n\t", 1)
+			if err != nil {
+				assert.Equal(t, val.error, err.Error())
+			} else {
+				assert.Equal(t, val.expected, out.String())
 			}
-
-			assert.Equal(t, data[i].expected, str)
 		})
 	}
 }

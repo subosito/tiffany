@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"net/url"
 	"strings"
 )
 
@@ -91,11 +92,37 @@ func (opt Option) godocURL() string {
 	return opt.GodocURL
 }
 
+func (opt Option) repoURL() (string, error) {
+	u, err := url.Parse(opt.RepoURL)
+	if err != nil {
+		return "", err
+	}
+
+	var b strings.Builder
+
+	if strings.HasPrefix(u.Scheme, "http") {
+		b.WriteString(u.Scheme)
+	} else {
+		b.WriteString("https")
+	}
+
+	b.WriteString("://")
+	b.WriteString(u.Host)
+	b.WriteString(u.Path)
+
+	return b.String(), nil
+}
+
 // Render renders the vanity URL information based on supplied option.
 func Render(w io.Writer, option Option) error {
+	repoURL, err := option.repoURL()
+	if err != nil {
+		return err
+	}
+
 	return vanityTmpl.Execute(w, Option{
 		CanonicalURL:  option.CanonicalURL,
-		RepoURL:       option.RepoURL,
+		RepoURL:       repoURL,
 		VCS:           option.vcs(),
 		SourceURL:     option.sourceURL(),
 		GodocURL:      option.godocURL(),
