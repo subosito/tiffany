@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"net/url"
 	"strings"
 )
 
@@ -16,10 +15,10 @@ var vanityTmpl = template.Must(template.New("vanity").Parse(`
 	<title>{{.CanonicalURL}}</title>
 	<meta name="go-import" content="{{.CanonicalURL}} {{.VCS}} {{.RepoURL}}">
 {{if .SourceURL}}	<meta name="go-source" content="{{.CanonicalURL}} {{.RepoURL}} {{.SourceURL}}">{{- end}}
-	<meta http-equiv="refresh" content="0; url={{if .GodocDisabled}}{{.RepoURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">
+	<meta http-equiv="refresh" content="0; url={{if .GodocDisabled}}{{.HomepageURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">
 </head>
 <body>
-	Nothing to see here. Please <a href="{{if .GodocDisabled}}{{.RepoURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">move along</a>.
+	Nothing to see here. Please <a href="{{if .GodocDisabled}}{{.HomepageURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">move along</a>.
 </body>
 </html>
 `))
@@ -39,6 +38,7 @@ type Option struct {
 	SourceURL     string
 	GodocURL      string
 	GodocDisabled bool
+	HomepageURL   string
 }
 
 func (opt Option) vcs() string {
@@ -92,40 +92,23 @@ func (opt Option) godocURL() string {
 	return opt.GodocURL
 }
 
-func (opt Option) repoURL() (string, error) {
-	u, err := url.Parse(opt.RepoURL)
-	if err != nil {
-		return "", err
+func (opt Option) homepageURL() string {
+	if opt.HomepageURL != "" {
+		return opt.HomepageURL
 	}
 
-	var b strings.Builder
-
-	if strings.HasPrefix(u.Scheme, "http") {
-		b.WriteString(u.Scheme)
-	} else {
-		b.WriteString("https")
-	}
-
-	b.WriteString("://")
-	b.WriteString(u.Host)
-	b.WriteString(u.Path)
-
-	return b.String(), nil
+	return opt.RepoURL
 }
 
 // Render renders the vanity URL information based on supplied option.
 func Render(w io.Writer, option Option) error {
-	repoURL, err := option.repoURL()
-	if err != nil {
-		return err
-	}
-
 	return vanityTmpl.Execute(w, Option{
 		CanonicalURL:  option.CanonicalURL,
-		RepoURL:       repoURL,
+		RepoURL:       option.RepoURL,
 		VCS:           option.vcs(),
 		SourceURL:     option.sourceURL(),
 		GodocURL:      option.godocURL(),
 		GodocDisabled: option.GodocDisabled,
+		HomepageURL:   option.homepageURL(),
 	})
 }
