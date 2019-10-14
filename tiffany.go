@@ -15,10 +15,14 @@ var vanityTmpl = template.Must(template.New("vanity").Parse(`
 	<title>{{.CanonicalURL}}</title>
 	<meta name="go-import" content="{{.CanonicalURL}} {{.VCS}} {{.RepoURL}}">
 {{if .SourceURL}}	<meta name="go-source" content="{{.CanonicalURL}} {{.RepoURL}} {{.SourceURL}}">{{- end}}
-	<meta http-equiv="refresh" content="0; url={{if .GodocDisabled}}{{.HomepageURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">
+{{- if .RedirectDisabled}}{{else}}
+	<meta http-equiv="refresh" content="0; url={{if .GodocDisabled}}{{.RedirectURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">
+{{end -}}
 </head>
 <body>
-	Nothing to see here. Please <a href="{{if .GodocDisabled}}{{.HomepageURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">move along</a>.
+{{- if .RedirectDisabled}}{{else}}
+	Nothing to see here. Please <a href="{{if .GodocDisabled}}{{.RedirectURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">move along</a>.
+{{end -}}
 </body>
 </html>
 `))
@@ -31,14 +35,15 @@ const (
 
 // Option is configuration for vanity URL
 type Option struct {
-	CanonicalURL  string
-	RepoURL       string
-	VCS           string
-	SourceLayout  string
-	SourceURL     string
-	GodocURL      string
-	GodocDisabled bool
-	HomepageURL   string
+	CanonicalURL     string
+	RepoURL          string
+	VCS              string
+	SourceLayout     string
+	SourceURL        string
+	GodocURL         string
+	GodocDisabled    bool
+	RedirectURL      string
+	RedirectDisabled bool
 }
 
 func (opt Option) vcs() string {
@@ -92,9 +97,9 @@ func (opt Option) godocURL() string {
 	return opt.GodocURL
 }
 
-func (opt Option) homepageURL() string {
-	if opt.HomepageURL != "" {
-		return opt.HomepageURL
+func (opt Option) redirectURL() string {
+	if opt.RedirectURL != "" {
+		return opt.RedirectURL
 	}
 
 	return opt.RepoURL
@@ -103,12 +108,13 @@ func (opt Option) homepageURL() string {
 // Render renders the vanity URL information based on supplied option.
 func Render(w io.Writer, option Option) error {
 	return vanityTmpl.Execute(w, Option{
-		CanonicalURL:  option.CanonicalURL,
-		RepoURL:       option.RepoURL,
-		VCS:           option.vcs(),
-		SourceURL:     option.sourceURL(),
-		GodocURL:      option.godocURL(),
-		GodocDisabled: option.GodocDisabled,
-		HomepageURL:   option.homepageURL(),
+		CanonicalURL:     option.CanonicalURL,
+		RepoURL:          option.RepoURL,
+		VCS:              option.vcs(),
+		SourceURL:        option.sourceURL(),
+		GodocURL:         option.godocURL(),
+		GodocDisabled:    option.GodocDisabled,
+		RedirectURL:      option.redirectURL(),
+		RedirectDisabled: option.RedirectDisabled,
 	})
 }

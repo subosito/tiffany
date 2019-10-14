@@ -153,11 +153,11 @@ func TestRender(t *testing.T) {
 `,
 		},
 		{
-			name: "gitlab ssh + custom homepage",
+			name: "gitlab ssh + custom redirection",
 			option: tiffany.Option{
 				CanonicalURL:  "subosito.com/go/gotenv",
 				RepoURL:       "ssh://git@git.gitlab.com/subosito/gotenv",
-				HomepageURL:   "https://gitlab.com/subosito/gotenv",
+				RedirectURL:   "https://gitlab.com/subosito/gotenv",
 				GodocDisabled: true,
 				VCS:           "git",
 			},
@@ -174,6 +174,27 @@ func TestRender(t *testing.T) {
 <body>
 	Nothing to see here. Please <a href="https://gitlab.com/subosito/gotenv">move along</a>.
 </body>
+</html>
+`,
+		},
+		{
+			name: "gitlab ssh + disable redirection",
+			option: tiffany.Option{
+				CanonicalURL:     "subosito.com/go/gotenv",
+				RepoURL:          "ssh://git@git.gitlab.com/subosito/gotenv",
+				GodocDisabled:    true,
+				RedirectDisabled: true,
+				VCS:              "git",
+			},
+			expected: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>subosito.com/go/gotenv</title>
+	<meta name="go-import" content="subosito.com/go/gotenv git ssh://git@git.gitlab.com/subosito/gotenv">
+</head>
+<body></body>
 </html>
 `,
 		},
