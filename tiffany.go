@@ -1,9 +1,11 @@
 package tiffany // import "subosito.com/go/tiffany"
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"io"
+	"regexp"
 	"strings"
 )
 
@@ -28,6 +30,8 @@ var vanityTmpl = template.Must(template.New("vanity").Parse(`
 {{- end}}
 </html>
 `))
+
+var whitespaceRegex = regexp.MustCompile(`[\n\t]+`)
 
 const (
 	godocURL     = "https://godoc.org"
@@ -107,9 +111,14 @@ func (opt Option) redirectURL() string {
 	return opt.RepoURL
 }
 
+func stripWhitespace(b []byte) []byte {
+	return whitespaceRegex.ReplaceAll(b, []byte(""))
+}
+
 // Render renders the vanity URL information based on supplied option.
 func Render(w io.Writer, option Option) error {
-	return vanityTmpl.Execute(w, Option{
+	b := new(bytes.Buffer)
+	n := Option{
 		CanonicalURL:     option.CanonicalURL,
 		RepoURL:          option.RepoURL,
 		VCS:              option.vcs(),
@@ -118,5 +127,14 @@ func Render(w io.Writer, option Option) error {
 		GodocDisabled:    option.GodocDisabled,
 		RedirectURL:      option.redirectURL(),
 		RedirectDisabled: option.RedirectDisabled,
-	})
+	}
+
+	if err := vanityTmpl.Execute(b, n); err != nil {
+		return err
+	}
+
+	z := stripWhitespace(b.Bytes())
+	_, err := w.Write(z)
+
+	return err
 }

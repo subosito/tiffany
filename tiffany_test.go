@@ -1,12 +1,15 @@
 package tiffany_test
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"subosito.com/go/tiffany"
 )
+
+var whitespaceRegex = regexp.MustCompile(`[\n\t]+`)
 
 func TestRender(t *testing.T) {
 	data := []struct {
@@ -226,7 +229,11 @@ func TestRender(t *testing.T) {
 		t.Run(val.name, func(t *testing.T) {
 			out := &strings.Builder{}
 			tiffany.Render(out, val.option)
-			assert.Equal(t, val.expected, out.String())
+			assert.Equal(t, stripWhitespace(val.expected), out.String())
 		})
 	}
+}
+
+func stripWhitespace(s string) string {
+	return whitespaceRegex.ReplaceAllString(s, "")
 }
