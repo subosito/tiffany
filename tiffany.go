@@ -12,14 +12,16 @@ var vanityTmpl = template.Must(template.New("vanity").Parse(`
 <html lang="en">
 <head>
 	<meta charset="utf-8">
+{{- if not .RedirectDisabled}}
 	<title>{{.CanonicalURL}}</title>
+{{- end}}
 	<meta name="go-import" content="{{.CanonicalURL}} {{.VCS}} {{.RepoURL}}">
 {{if .SourceURL}}	<meta name="go-source" content="{{.CanonicalURL}} {{.RepoURL}} {{.SourceURL}}">{{- end}}
-{{- if .RedirectDisabled}}{{else}}
+{{- if not .RedirectDisabled}}
 	<meta http-equiv="refresh" content="0; url={{if .GodocDisabled}}{{.RedirectURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">
 {{end -}}
 </head>
-{{- if .RedirectDisabled}}{{else}}
+{{- if not .RedirectDisabled}}
 <body>
 	Nothing to see here. Please <a href="{{if .GodocDisabled}}{{.RedirectURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">move along</a>.
 </body>
