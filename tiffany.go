@@ -19,11 +19,11 @@ var vanityTmpl = template.Must(template.New("vanity").Parse(`
 	<meta http-equiv="refresh" content="0; url={{if .GodocDisabled}}{{.RedirectURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">
 {{end -}}
 </head>
-<body>
 {{- if .RedirectDisabled}}{{else}}
+<body>
 	Nothing to see here. Please <a href="{{if .GodocDisabled}}{{.RedirectURL}}{{else}}{{.GodocURL}}/{{.CanonicalURL}}{{end}}">move along</a>.
-{{end -}}
 </body>
+{{- end}}
 </html>
 `))
 

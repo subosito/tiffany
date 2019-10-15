@@ -194,7 +194,6 @@ func TestRender(t *testing.T) {
 	<title>subosito.com/go/gotenv</title>
 	<meta name="go-import" content="subosito.com/go/gotenv git ssh://git@git.gitlab.com/subosito/gotenv">
 </head>
-<body></body>
 </html>
 `,
 		},
