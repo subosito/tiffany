@@ -129,9 +129,7 @@ func Render(w io.Writer, option Option) error {
 		RedirectDisabled: option.RedirectDisabled,
 	}
 
-	if err := vanityTmpl.Execute(b, n); err != nil {
-		return err
-	}
+	vanityTmpl.Execute(b, n)
 
 	z := stripWhitespace(b.Bytes())
 	_, err := w.Write(z)
